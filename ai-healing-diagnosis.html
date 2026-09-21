@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>3分鐘 AI 療癒診斷</title>
+  <meta name="description" content="顧客到店後可用手機或平板完成的 3 分鐘 AI 療癒診斷互動問卷。">
+  <style>
+    :root {
+      --ink: #173433;
+      --text: #31524e;
+      --muted: #71827d;
+      --line: #dce7e2;
+      --paper: #f6faf7;
+      --surface: #ffffff;
+      --mint: #2f8d72;
+      --mint-soft: #dff3ea;
+      --blue: #3a719e;
+      --blue-soft: #e3eff8;
+      --rose: #b95c62;
+      --rose-soft: #fde5e6;
+      --gold: #bd8426;
+      --gold-soft: #fff0cf;
+      --shadow: 0 18px 46px rgba(23, 52, 51, .12);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 8%, rgba(223, 243, 234, .95), transparent 26rem),
+        radial-gradient(circle at 85% 12%, rgba(227, 239, 248, .8), transparent 24rem),
+        linear-gradient(180deg, #fbfdfb 0%, var(--paper) 100%);
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 18px;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 330px minmax(0, 1fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .side {
+      background: rgba(255, 255, 255, .82);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+      min-height: calc(100vh - 36px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 24px;
+      position: sticky;
+      top: 18px;
+    }
+
+    .brand {
+      display: grid;
+      gap: 12px;
+    }
+
+    .mark {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      background: var(--ink);
+      color: #e8f7ef;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    h1, h2, h3, p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 28px;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+    }
+
+    .step {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      color: var(--text);
+      font-size: 14px;
+      min-height: 40px;
+    }
+
+    .step span {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--mint-soft);
+      color: var(--ink);
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    .privacy {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(246, 250, 247, .72);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .main {
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, .9);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: clamp(18px, 3vw, 30px);
+    }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .timer {
+      color: var(--text);
+      background: var(--blue-soft);
+      padding: 8px 11px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .progress {
+      height: 10px;
+      background: #e8efeb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--mint), var(--blue));
+      transition: width .25s ease;
+    }
+
+    .question {
+      display: grid;
+      gap: 22px;
+    }
+
+    .eyebrow {
+      color: var(--mint);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .question h2 {
+      font-size: clamp(26px, 3.5vw, 42px);
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .hint {
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    .scale {
+      display: grid;
+      gap: 14px;
+    }
+
+    .scale-value {
+      font-size: 52px;
+      line-height: 1;
+      font-weight: 900;
+      color: var(--ink);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--mint);
+    }
+
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .option {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      min-height: 58px;
+      padding: 13px 14px;
+      text-align: left;
+      color: var(--ink);
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    }
+
+    .option:hover {
+      transform: translateY(-1px);
+      border-color: var(--mint);
+    }
+
+    .option[aria-pressed="true"] {
+      background: var(--mint-soft);
+      border-color: var(--mint);
+    }
+
+    .option .dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      flex: 0 0 auto;
+    }
+
+    .option[aria-pressed="true"] .dot {
+      box-shadow: inset 0 0 0 4px var(--mint-soft);
+      background: var(--mint);
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .btn {
+      min-height: 46px;
+      border-radius: 8px;
+      padding: 12px 17px;
+      color: #fff;
+      background: var(--ink);
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .btn.secondary {
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .result {
+      display: none;
+      gap: 18px;
+    }
+
+    .result.show {
+      display: grid;
+    }
+
+    .hero-result {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 230px;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .type-card {
+      background: linear-gradient(135deg, var(--ink), #28655a);
+      color: #fff;
+      border-radius: 8px;
+      padding: clamp(20px, 3vw, 30px);
+      display: grid;
+      align-content: center;
+      gap: 12px;
+      min-height: 230px;
+    }
+
+    .type-card span {
+      color: rgba(255, 255, 255, .72);
+      font-weight: 800;
+    }
+
+    .type-card h2 {
+      font-size: clamp(30px, 4.5vw, 52px);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .score-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 18px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      gap: 8px;
+    }
+
+    .score-card strong {
+      font-size: 54px;
+      line-height: 1;
+    }
+
+    .score-card span {
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+      gap: 18px;
+    }
+
+    .mini-panel {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .92);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .mini-panel h3 {
+      margin-bottom: 14px;
+      font-size: 19px;
+    }
+
+    .ratings {
+      display: grid;
+      gap: 13px;
+    }
+
+    .rating {
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      gap: 12px;
+      align-items: center;
+      color: var(--text);
+    }
+
+    .stars {
+      color: var(--gold);
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .advice {
+      display: grid;
+      gap: 12px;
+      color: var(--text);
+      line-height: 1.75;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 7px 11px;
+      background: var(--mint-soft);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .chip.blue {
+      background: var(--blue-soft);
+    }
+
+    .chip.gold {
+      background: var(--gold-soft);
+    }
+
+    .staff-note {
+      border-left: 5px solid var(--mint);
+      padding: 12px 14px;
+      background: var(--paper);
+      border-radius: 8px;
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translate(-50%, 16px);
+      opacity: 0;
+      background: var(--ink);
+      color: #fff;
+      padding: 12px 15px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      transition: .2s ease;
+      pointer-events: none;
+      z-index: 4;
+      width: min(420px, calc(100vw - 28px));
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        grid-template-columns: 1fr;
+        padding: 12px;
+      }
+
+      .side {
+        position: static;
+        min-height: auto;
+      }
+
+      .steps {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .hero-result, .result-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .steps, .options {
+        grid-template-columns: 1fr;
+      }
+
+      .card, .side {
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .question h2 {
+        font-size: 27px;
+      }
+
+      .nav {
+        position: sticky;
+        bottom: 0;
+        background: rgba(246, 250, 247, .92);
+        padding: 12px 0 0;
+        backdrop-filter: blur(14px);
+      }
+
+      .btn {
+        flex: 1;
+      }
+
+      .rating {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <div class="mark">AI</div>
+        <div>
+          <h1>3分鐘 AI 療癒診斷</h1>
+          <p class="lead">到店後快速理解顧客今天的身體、睡眠、壓力與想改善的方向，讓服務建議更貼近當下狀態。</p>
+        </div>
+      </div>
+
+      <div class="steps" aria-label="流程">
+        <div class="step"><span>1</span>完成 8 題測驗</div>
+        <div class="step"><span>2</span>產出今日療癒類型</div>
+        <div class="step"><span>3</span>交給顧問安排服務</div>
+      </div>
+
+      <div class="privacy">
+        此頁為到店諮詢輔助，不取代醫療診斷。若有明顯疼痛、受傷、懷孕或疾病治療中，請先由專業人員評估。
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="card" id="quizCard">
+        <div class="topline">
+          <div class="eyebrow" id="stepText">第 1 題 / 共 8 題</div>
+          <div class="timer" id="timer">約 3 分鐘</div>
+        </div>
+        <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+
+        <div class="question">
+          <div>
+            <h2 id="questionTitle"></h2>
+            <p class="hint" id="questionHint"></p>
+          </div>
+          <div id="answerArea"></div>
+        </div>
+
+        <div class="nav">
+          <button class="btn secondary" id="prevBtn" type="button">上一題</button>
+          <button class="btn" id="nextBtn" type="button">下一題</button>
+        </div>
+      </section>
+
+      <section class="result" id="resultView" aria-live="polite">
+        <div class="hero-result">
+          <div class="type-card">
+            <span>今日療癒類型</span>
+            <h2 id="resultType">深度放鬆型</h2>
+            <p id="resultSummary">今天適合以舒壓、循環與睡眠放鬆為主。</p>
+          </div>
+          <div class="score-card">
+            <span>療癒需求指數</span>
+            <strong id="needScore">82</strong>
+            <span id="scoreHint">建議安排完整放鬆流程</span>
+          </div>
+        </div>
+
+        <div class="result-grid">
+          <div class="mini-panel">
+            <h3>主要狀況</h3>
+            <div class="ratings" id="ratings"></div>
+          </div>
+
+          <div class="mini-panel">
+            <h3>AI 建議</h3>
+            <div class="advice">
+              <p id="mainAdvice"></p>
+              <div class="chips" id="chips"></div>
+              <div class="staff-note" id="staffNote"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="topline" style="margin-bottom:0">
+            <div>
+              <h3>顧問服務摘要</h3>
+              <p class="hint">可直接複製給現場顧問或放入諮詢紀錄。</p>
+            </div>
+            <button class="btn secondary" id="copyBtn" type="button">複製摘要</button>
+          </div>
+          <p class="staff-note" id="summaryText" style="margin-top:16px"></p>
+          <div class="nav">
+            <button class="btn secondary" id="restartBtn" type="button">重新測驗</button>
+            <button class="btn" id="printBtn" type="button">列印 / 存成 PDF</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const questions = [
+      { id: "fatigue", type: "scale", title: "今天身體疲累程度？", hint: "1 代表很有精神，10 代表非常疲累。", low: "很有精神", high: "非常疲累", defaultValue: 5 },
+      { id: "tension", type: "scale", title: "最近肩頸／身體緊繃程度？", hint: "請用今天最明顯的緊繃感作答。", low: "幾乎沒有", high: "非常緊繃", defaultValue: 6 },
+      { id: "sleep", type: "choice", title: "最近一週睡眠品質？", hint: "以整體睡醒後的恢復感為主。", options: ["很好", "普通", "不好"] },
+      { id: "stress", type: "choice", title: "最近心理壓力？", hint: "不需要解釋原因，選最接近的狀態即可。", options: ["低", "中", "高"] },
+      { id: "goal", type: "choice", title: "今天最想改善什麼？", hint: "選最想優先處理的一項。", options: ["放鬆", "睡眠", "肩頸", "水腫", "肌膚", "體態", "情緒", "想單純休息"] },
+      { id: "swelling", type: "scale", title: "今天水腫或循環卡卡的感覺？", hint: "1 代表很輕盈，10 代表很明顯。", low: "很輕盈", high: "很明顯", defaultValue: 4 },
+      { id: "skin", type: "choice", title: "最近肌膚狀態比較像？", hint: "若不確定，選最常出現的感覺。", options: ["穩定", "乾燥暗沉", "容易敏感", "油水平衡差"] },
+      { id: "energy", type: "choice", title: "療程後希望自己變成什麼狀態？", hint: "這會影響今天建議的服務節奏。", options: ["放鬆好睡", "身體輕盈", "肩頸鬆開", "氣色變好", "情緒安定"] }
+    ];
+
+    const answers = {};
+    let index = 0;
+    let startedAt = Date.now();
+
+    const stepText = document.getElementById("stepText");
+    const timer = document.getElementById("timer");
+    const progressBar = document.getElementById("progressBar");
+    const questionTitle = document.getElementById("questionTitle");
+    const questionHint = document.getElementById("questionHint");
+    const answerArea = document.getElementById("answerArea");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const quizCard = document.getElementById("quizCard");
+    const resultView = document.getElementById("resultView");
+
+    prevBtn.addEventListener("click", () => {
+      if (index > 0) {
+        index -= 1;
+        renderQuestion();
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      const current = questions[index];
+      if (answers[current.id] === undefined || answers[current.id] === "") {
+        toast("請先選擇這一題。");
+        return;
+      }
+      if (index < questions.length - 1) {
+        index += 1;
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    });
+
+    document.getElementById("restartBtn").addEventListener("click", () => {
+      for (const key of Object.keys(answers)) delete answers[key];
+      index = 0;
+      startedAt = Date.now();
+      resultView.classList.remove("show");
+      quizCard.style.display = "block";
+      renderQuestion();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    document.getElementById("printBtn").addEventListener("click", () => window.print());
+
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      const text = document.getElementById("summaryText").textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        toast("摘要已複製。");
+      } catch {
+        toast("瀏覽器未允許複製，可手動選取摘要。");
+      }
+    });
+
+    function renderQuestion() {
+      const question = questions[index];
+      stepText.textContent = `第 ${index + 1} 題 / 共 ${questions.length} 題`;
+      progressBar.style.width = `${index / questions.length * 100}%`;
+      questionTitle.textContent = question.title;
+      questionHint.textContent = question.hint;
+      prevBtn.disabled = index === 0;
+      nextBtn.textContent = index === questions.length - 1 ? "產生建議" : "下一題";
+      timer.textContent = elapsedText();
+
+      if (question.type === "scale") {
+        const value = answers[question.id] ?? question.defaultValue;
+        answers[question.id] = value;
+        answerArea.innerHTML = `
+          <div class="scale">
+            <div class="scale-value" id="scaleValue">${value}</div>
+            <input type="range" min="1" max="10" value="${value}" id="scaleInput" aria-label="${question.title}">
+            <div class="scale-labels"><span>${question.low}</span><span>${question.high}</span></div>
+          </div>
+        `;
+        const input = document.getElementById("scaleInput");
+        const label = document.getElementById("scaleValue");
+        input.addEventListener("input", () => {
+          answers[question.id] = Number(input.value);
+          label.textContent = input.value;
+        });
+      } else {
+        answerArea.innerHTML = `<div class="options">${question.options.map((option) => `
+          <button class="option" type="button" aria-pressed="${answers[question.id] === option}" data-value="${option}">
+            <span class="dot"></span>${option}
+          </button>
+        `).join("")}</div>`;
+        answerArea.querySelectorAll(".option").forEach((button) => {
+          button.addEventListener("click", () => {
+            answers[question.id] = button.dataset.value;
+            renderQuestion();
+          });
+        });
+      }
+    }
+
+    function showResult() {
+      progressBar.style.width = "100%";
+      const result = calculateResult();
+      document.getElementById("resultType").textContent = result.type;
+      document.getElementById("resultSummary").textContent = result.summary;
+      document.getElementById("needScore").textContent = result.needScore;
+      document.getElementById("scoreHint").textContent = result.scoreHint;
+      document.getElementById("mainAdvice").textContent = result.advice;
+      document.getElementById("chips").innerHTML = result.chips.map((chip, i) => `<span class="chip ${i % 3 === 1 ? "blue" : i % 3 === 2 ? "gold" : ""}">${chip}</span>`).join("");
+      document.getElementById("staffNote").textContent = result.staffNote;
+      document.getElementById("ratings").innerHTML = result.ratings.map((row) => `
+        <div class="rating">
+          <strong>${row.label}</strong>
+          <span class="stars">${stars(row.value)} <span style="color:var(--muted)">${row.note}</span></span>
+        </div>
+      `).join("");
+      document.getElementById("summaryText").textContent = result.summaryText;
+      quizCard.style.display = "none";
+      resultView.classList.add("show");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function calculateResult() {
+      const fatigue = Number(answers.fatigue);
+      const tension = Number(answers.tension);
+      const swelling = Number(answers.swelling);
+      const sleepScore = answers.sleep === "不好" ? 9 : answers.sleep === "普通" ? 5 : 2;
+      const stressScore = answers.stress === "高" ? 9 : answers.stress === "中" ? 5 : 2;
+      const skinScore = answers.skin === "穩定" ? 2 : answers.skin === "乾燥暗沉" ? 6 : 7;
+      const needScore = Math.min(99, Math.round((fatigue + tension + swelling + sleepScore + stressScore + skinScore) / 60 * 100));
+
+      const focus = scoreFocus({ fatigue, tension, swelling, sleepScore, stressScore, skinScore });
+      const type = pickType(focus);
+      const adviceMap = {
+        relax: {
+          type: "深度放鬆型",
+          summary: "今天適合以舒壓、循環與睡眠放鬆為主。",
+          advice: "建議先用慢節奏安撫神經，再加強肩頸與背部釋放，最後用溫和循環收尾，讓身體從緊繃切換到休息狀態。",
+          chips: ["舒壓放鬆", "肩頸釋放", "睡眠放鬆", "溫熱循環"],
+          staffNote: "顧問可先降低談話速度，避免一開始就推強度；服務中觀察呼吸、肩頸防衛感與睡意反應。"
+        },
+        sleep: {
+          type: "睡眠修復型",
+          summary: "今天適合把療程重點放在放鬆入睡與恢復感。",
+          advice: "建議以頭肩頸、背部與足部放鬆為主，減少過度刺激，讓身體在療程後保留安定感。",
+          chips: ["頭肩頸", "背部放鬆", "足部暖循環", "低刺激節奏"],
+          staffNote: "顧問可提醒顧客今晚補水、提早放下手機，療後避免安排太亢奮的活動。"
+        },
+        shoulder: {
+          type: "肩頸釋放型",
+          summary: "今天適合優先處理肩頸緊繃與上背壓力。",
+          advice: "建議從肩頸、斜方肌、肩胛周邊開始，再搭配手臂與背部線條放鬆，減少局部卡住的感覺。",
+          chips: ["肩頸加強", "上背放鬆", "手臂循環", "姿勢舒展"],
+          staffNote: "顧問可確認是否有急性疼痛或麻木；若只是緊繃，建議強度循序增加。"
+        },
+        circulation: {
+          type: "循環輕盈型",
+          summary: "今天適合促進循環、改善水腫與沉重感。",
+          advice: "建議以腿部、腹部與全身循環為主，搭配溫和代謝節奏，讓身體感覺更輕盈。",
+          chips: ["腿部循環", "水腫代謝", "腹部暖護", "全身輕盈"],
+          staffNote: "顧問可詢問最近飲水、鹽分、久站久坐狀況，療程後提醒補水與輕走動。"
+        },
+        skin: {
+          type: "肌膚亮采型",
+          summary: "今天適合以氣色、保濕與肌膚穩定為主。",
+          advice: "建議先放鬆壓力與肩頸，再安排溫和保濕、亮采或穩定肌膚的照護，讓臉部狀態更柔和。",
+          chips: ["保濕亮采", "肌膚穩定", "氣色提升", "肩頸放鬆"],
+          staffNote: "顧問可確認近期是否敏感、換季或熬夜，避免一次給太刺激的護理。"
+        }
+      };
+      const picked = adviceMap[type];
+      const scoreHint = needScore >= 78 ? "建議安排完整放鬆流程" : needScore >= 58 ? "建議安排重點加強流程" : "適合輕量保養與休息";
+
+      const ratings = [
+        { label: "肩頸緊繃", value: starValue(tension), note: `${tension}/10` },
+        { label: "睡眠品質", value: starValue(11 - sleepScore), note: answers.sleep },
+        { label: "心理壓力", value: starValue(stressScore), note: answers.stress },
+        { label: "水腫循環", value: starValue(swelling), note: `${swelling}/10` },
+        { label: "肌膚狀態", value: starValue(skinScore), note: answers.skin }
+      ];
+
+      const summaryText = `今日療癒類型：${picked.type}。主要狀況：肩頸緊繃 ${stars(starValue(tension))}、睡眠品質 ${stars(starValue(11 - sleepScore))}、心理壓力 ${stars(starValue(stressScore))}、水腫循環 ${stars(starValue(swelling))}。AI 建議：${picked.advice} 顧客今天最想改善：${answers.goal}；療程後期待：${answers.energy}。`;
+
+      return { ...picked, needScore, scoreHint, ratings, summaryText };
+    }
+
+    function scoreFocus(data) {
+      const scores = {
+        relax: data.fatigue + data.stressScore + data.tension,
+        sleep: data.sleepScore * 2 + data.fatigue + data.stressScore,
+        shoulder: data.tension * 2 + (answers.goal === "肩頸" ? 8 : 0),
+        circulation: data.swelling * 2 + (answers.goal === "水腫" || answers.energy === "身體輕盈" ? 8 : 0),
+        skin: data.skinScore * 2 + (answers.goal === "肌膚" || answers.energy === "氣色變好" ? 8 : 0)
+      };
+      if (answers.goal === "睡眠") scores.sleep += 10;
+      if (answers.goal === "放鬆" || answers.goal === "情緒" || answers.goal === "想單純休息") scores.relax += 10;
+      return scores;
+    }
+
+    function pickType(scores) {
+      return Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+    }
+
+    function starValue(value) {
+      return Math.max(1, Math.min(5, Math.round(value / 2)));
+    }
+
+    function stars(value) {
+      return "★★★★★".slice(0, value) + "☆☆☆☆☆".slice(0, 5 - value);
+    }
+
+    function elapsedText() {
+      const seconds = Math.floor((Date.now() - startedAt) / 1000);
+      if (seconds < 60) return "約 3 分鐘";
+      return `已用 ${Math.floor(seconds / 60)} 分 ${seconds % 60} 秒`;
+    }
+
+    function toast(message) {
+      const node = document.getElementById("toast");
+      node.textContent = message;
+      node.classList.add("show");
+      window.clearTimeout(toast.timer);
+      toast.timer = window.setTimeout(() => node.classList.remove("show"), 2400);
+    }
+
+    renderQuestion();
+  </script>
+</body>
+</html>
